@@ -1,0 +1,48 @@
+version: "3.9"
+
+services:
+  photo-gallery-app:
+    build: . # Specify the Dockerfile for your server
+    image: your-spring-boot-image:latest
+    restart: unless-stopped
+    ports:
+      - "2303:2303"  # Map the Spring Boot app's port
+    depends_on:
+      - mysqldb
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysqldb:3306/photo_gallery
+      SPRING_DATASOURCE_USERNAME: photogallery
+      SPRING_DATASOURCE_PASSWORD: Deepak@123
+      file.upload-dir: uploads/  # Add the file upload directory here
+    networks:
+      - springboot
+
+  mysqldb:
+    image: mysql/mysql-server:5.7
+    restart: always
+    container_name: mysql-container
+    environment:
+      MYSQL_DATABASE: photo_gallery
+      MYSQL_USER: photogallery
+      MYSQL_PASSWORD: Deepak@123
+      MYSQL_ROOT_PASSWORD: Deepak@123
+    ports:
+      - "3307:3306"  # Map the MySQL port
+    networks:
+      - springboot
+
+  phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    restart: always
+    container_name: phpmyadmin-container
+    environment:
+      PMA_HOST: mysqldb  # Use the name of the MySQL service defined above
+      PMA_PORT: 3306
+    ports:
+      - "9002:80"  # Map the phpMyAdmin port to port 8081 on the host
+    networks:
+      - springboot
+
+networks:
+  springboot:
+    driver: bridge
